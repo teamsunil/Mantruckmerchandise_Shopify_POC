@@ -502,8 +502,6 @@ function demoBar(){
   const opts = [`<option value="">Guest (not signed in)</option>`].concat(S.customers.map(c=>`<option value="${c.id}" ${u&&u.id===c.id?'selected':''}>${esc(c.name)} – ${c.status==='approved'?GROUP_LABEL[c.group]:'General Public ('+c.requested+' '+c.status+')'}</option>`));
   return `<div class="demobar"><div class="wrap">
     <span class="tag">POC demo</span>
-    <label for="demoUser">Viewing as</label>
-    <select id="demoUser" data-change="switchUser">${opts.join('')}</select>
     <span class="sp"></span>
     <button data-act="resetDemo">Reset demo</button>
   </div></div>`;
@@ -618,9 +616,6 @@ function pageShop(catId){
       <h3>Category</h3>
       <label class="fopt"><input type="radio" name="cat" value="all" data-change="filter" data-k="cat" ${ui.cat==='all'?'checked':''}> All categories</label>
       ${CATS.map(c=>`<label class="fopt"><input type="radio" name="cat" value="${c.id}" data-change="filter" data-k="cat" ${ui.cat===c.id?'checked':''}> ${c.name}</label>`).join('')}
-      <h3>Range</h3>
-      <label class="fopt"><input type="radio" name="src" value="all" data-change="filter" data-k="source" ${ui.source==='all'?'checked':''}> All</label>
-      ${Object.entries(SOURCES).map(([k,v])=>`<label class="fopt"><input type="radio" name="src" value="${k}" data-change="filter" data-k="source" ${ui.source===k?'checked':''}> ${v}</label>`).join('')}
       <h3>Size</h3>
       <select class="inp" data-change="filter" data-k="size" aria-label="Size"><option value="all">Any size</option>${allSizes.map(z=>`<option ${ui.size===z?'selected':''}>${z}</option>`).join('')}</select>
       <h3>Max price: ${gbp(ui.maxPrice)}</h3>
@@ -660,7 +655,6 @@ function pageProduct(id){
   <div class="pdp">
     <div class="gal">${art(p.type,p.hex,{label:p.name+' '+p.colour})}</div>
     <div>
-      <p class="muted small" style="margin-bottom:4px">${esc(SOURCES[p.source])}</p>
       <h1 style="font-size:2.4rem">${esc(p.name)}</h1>
       <p class="muted" style="margin-bottom:6px">Colour: <b style="color:var(--ink)">${esc(p.colour)}</b></p>
       ${fam.length>1?`<div class="swatches" aria-label="Other colours">${fam.map(f=>`<button class="sw ${f.id===p.id?'on':''}" data-act="go" data-to="${f.id}"><i style="background:${f.hex}"></i>${esc(f.colour)}</button>`).join('')}</div><p class="small muted" style="margin-top:-8px">Each colour is a separate listing.</p>`:''}
@@ -799,7 +793,7 @@ function pageConfirmation(){
 
 function pageLogin(){
   const msg = ui.authMsg; ui.authMsg='';
-  return `<div class="wrap"><div class="auth">
+  return `<div class="wrap"><div class="auth" style="grid-template-columns:1fr;max-width:480px">
     <form class="panel" data-submit="login">
       <h1 style="font-size:2.1rem">Sign in</h1>
       ${msg?`<p class="badge warn" style="display:block;padding:8px 10px">${esc(msg)}</p>`:''}
@@ -808,11 +802,7 @@ function pageLogin(){
       <button class="btn" type="submit">Sign in</button>
       <p style="margin-top:16px" class="small">New customer? <button type="button" class="linkbtn" data-act="go" data-to="register">Create an account</button></p>
     </form>
-    <div class="panel">
-      <h2 style="font-size:1.5rem">Demo accounts</h2>
-      <p class="small muted">Sign in instantly to see how pricing changes by customer group. Password for all: demo123</p>
-      <div class="demoacc">${S.customers.map(c=>`<button data-act="quickLogin" data-id="${c.id}"><span><b>${esc(c.name)}</b><br><span class="small muted">${esc(c.email)}</span></span>${c.status==='approved'?`<span class="badge ${c.group==='public'?'':'ok'}">${GROUP_LABEL[c.group]}</span>`:`<span class="badge warn">${c.requested} – ${c.status}</span>`}</button>`).join('')}</div>
-    </div></div></div>`;
+    </div></div>`;
 }
 function pageRegister(){
   return `<div class="wrap"><div class="auth">
@@ -1282,7 +1272,7 @@ document.addEventListener('submit', e=>{
     case 'search': ui.q=(fd.get('q')||'').trim(); ui.cat='all'; ui.keepCat=true; go('shop'); break;
     case 'login': {
       const u=S.customers.find(c=>c.email.toLowerCase()===String(fd.get('email')).toLowerCase().trim() && c.pw===fd.get('pw'));
-      if(!u){ ui.authMsg='Email or password not recognised. Try a demo account on the right.'; render(); return; }
+      if(!u){ ui.authMsg='Email or password not recognised. Please check and try again.'; render(); return; }
       signIn(u); break; }
     case 'register': {
       const email=String(fd.get('email')).trim();
